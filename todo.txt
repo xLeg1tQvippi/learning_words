@@ -1,0 +1,61 @@
+main.py -> create a menu which redirect you to:
+    1. add new words
+    2. learn new words
+
+
+tasks:
+
+main.py -> is doing direction to launch a file with different purposes.
+appending new words should have it own file.
+learning new words should have it own file.
+
+find the explanation of the word in different languages.
+find translation of the word.
+find the transcription of the word.
+
+use database to hold data of words.
+use pandas to show the list of new words or words at all.
+use json file to admit if additional files was created.
+
+export data to excel table ->
+export excel table to word and save it, if person would like to print the list.
+
+words database:
+word: string, transcription: string, translation: string, status: false/learn/true
+
+append_new_word file.
+---------------------
+tasks:
+
+choose the language of the word translation.
+user inputs the word he'd like to learn.
+words are going to temp. list from where, program taking them and start doing searching. ->
+program searching the translation and definition of this word and gets the transcription.
+all the translation automaticly saves recieved data in database. 
+
+searching system:
+-----------------
+
+program gets the word -> selenium runs 3 websites where it puts the word in takes first translation of the word.
+then, program inputs word to a transcription website.
+saves it to temp dictionary.
+
+if containers.json -> empty, we're asking for user to create a new container which will held all the words inside.
+after user inputs all the nessecery words, program starts getting their translation and transcriptions, and automaticly adds them in 
+temporary containers.json -> after finishing we're quickly going through the all data in containers.json, and appending them to DB.
+
+otherwise, if containers are already exists, asking user to choose by inputing the name of container.
+// if container were once DataBased we're requesting all the words from DB that included inside of chosen container and showing existed words.
+
+
+checking containers. // append_new_words.
+-----------------------------------------
+
+first of all, check if container.json - is empty. (fully)
+if cotnainer.json if fully empty: we're checking DB tables. -> if they're empty:
+-> we're asking for user to create new one. -> add it to container.json, after what we redirecting user
+to another menu where we're asking to: 
+1. add words.
+2. remove words.
+0. back to menu.
+

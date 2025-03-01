@@ -4,6 +4,7 @@ import os
 import json
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
+import translateWords
 
 
 class maenu:
@@ -136,9 +137,10 @@ class Menu:
 
     def __init__(self):
         self.path_creator = PathCreator()
-        paths: list = self.path_creator._check_main_path()
+        paths: list = self.path_creator.check_main_path()
         self.db_manager = WordDatabaseManager(paths[2])
         self.container_manager = ContainerManager(paths[3])
+        self.words_translation = translateWords.WordsTranslation()
         self.main_menu()
 
     def input_int(self, text):
@@ -193,7 +195,7 @@ class Menu:
         """managing menu with containers"""
         while True:
             print(
-                "\n1 - Создать контейнер\n2 - Показать контейнеры\n3 - Перевести все слова\n0 - Назад"
+                "\n1 - Создать контейнер\n2 - Показать контейнеры\n3 - Перевести слова из контейнера\n0 - Назад"
             )
             choice = self.input_int(">>> ")
 
@@ -207,6 +209,18 @@ class Menu:
                 print(
                     "Существующие контейнеры:", self.container_manager.get_containers()
                 )
+            elif choice == 3:
+                containers = self.container_manager.get_containers()
+                container_completer = WordCompleter(
+                    list(containers[0].keys()), ignore_case=True
+                )
+                chooseContainer = prompt(
+                    "Выберите контейнер для перевода:", completer=container_completer
+                )
+                print("Запускаем перевод слов.")
+                translation = self.words_translation.wordTranslationInstruction(chooseContainer)
+                print("Перевод слов завершен")
+                print(translation)
             elif choice == 0:
                 break
 
@@ -295,9 +309,9 @@ class PathCreator:
     """class for creating paths and getting them to use in main menu."""
 
     def __init__(self):
-        self._check_main_path()
+        self.check_main_path()
 
-    def _check_main_path(self):
+    def check_main_path(self):
         db_path_file_name: str = "dictionary_files"
         conatiner_name: str = "containers.json"
         db_file_name = "words_database.db"
@@ -315,6 +329,7 @@ class PathCreator:
             full_path_with_db,
             full_path_wth_containers,
         ]
+
 
 if __name__ == "__main__":
     menu = Menu()

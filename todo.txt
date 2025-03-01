@@ -59,3 +59,12 @@ to another menu where we're asking to:
 2. remove words.
 0. back to menu.
 
+word_translation instruction.
+----------------------------
+
+1. receive the words container from menu.
+2. launch browser.
+3. open 3 websites // 2 translation of word // 1 transcription.
+4. switch between websites and paste the word, get the translations and transcription
+5. save data in containers temp.
+6. repeat untill all words are not empty.

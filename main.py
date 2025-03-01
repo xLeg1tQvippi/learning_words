@@ -117,10 +117,10 @@ class Main:
 
     def get_files_status(self):
         try:
-            files_json_name = "learning_words/settings.json"
+            files_json_name = "settings.json"
             words_database = "words_database"
             db_name = "words_database.db"
-            db_path_name = "learning_words/dictionary_files/"
+            db_path_name = "dictionary_files/"
             full_db_path = f"{db_path_name+db_name}"
 
             testDB = self.try_open_database(full_db_path)

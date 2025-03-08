@@ -7,7 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver import Keys
-from append_new_words import PathCreator
+import append_new_words
 import json
 import pprint
 
@@ -19,8 +19,7 @@ class WordsTranslation:
         self.browser_tools = Website_Translate_Helper()
         self.wooordHunt = WooordHunt()
         self.cambridge_dictionary = CambridgeDictionary()
-        self.top_phonetics = TopPhonetics()
-        self.pathCreator = PathCreator()
+        self.pathCreator = append_new_words.PathCreator()
         self.path_to_containers = self.pathCreator.check_main_path()[3]
         self.wordHunt_words_translation = {}
         self.cambridge_word_translation = {}
@@ -32,10 +31,13 @@ class WordsTranslation:
         self.translationLoopCambridge(words)
         self.browser_tools.shutdown_browser()
         self.sort_and_merge_words()
-        return self.wordHunt_words_translation
+        container_translated_wrods = []
+        container_translated_wrods.append(self.wordHunt_words_translation)
+        return container_translated_wrods
 
     def translationLoopWordHunt(self, words: list):
         """here we will do a loop for translation"""
+        words = list(words[0].values())[0]
         self.driver: webdriver = self.browser_tools.launch_browser()
         temp = {"transcription": None, "translation": None}
         for word in words:
@@ -50,6 +52,7 @@ class WordsTranslation:
 
     def translationLoopCambridge(self, words: list):
         temp = {"translation": None}
+        words = list(words[0].values())[0]
         for word in words:
             translation: list = self.cambridge_dictionary.translate(word, self.driver)
             if translation is not None:
@@ -65,7 +68,6 @@ class WordsTranslation:
         for word, translation in self.cambridge_word_translation.items():
             translation_list = translation["translation"]
             full_translation_list = translation
-            print(word, translation)
             for translation in translation_list:
                 if word in self.wordHunt_words_translation.keys():
                     if (
@@ -93,10 +95,59 @@ class WordsTranslation:
         with open(self.path_to_containers, "r", encoding="utf-8") as file:
             return json.load(file)
 
-    def get_container_list(self, container: str):
+    def get_container_list(self, container_name: str):
         """getting containers information."""
         containers_data: dict = self._load_json()
-        return containers_data["containers"][0][container]  # container words list.
+        return [
+            container
+            for container in containers_data["containers"]
+            if container_name in container
+        ]  # container words list.
+
+
+class WordTranscription:
+    """class for getting transcription for own translated words."""
+
+    def __init__(self):
+        self.website_helper = Website_Translate_Helper()
+        self.topPhonetics = TopPhonetics()
+        self.path_creator = append_new_words.PathCreator()
+        path_to_containers = self.path_creator.check_main_path()[3]
+        self.container_manager = append_new_words.ContainerManager(path_to_containers)
+
+    def main_instructions(self, container_name: str):
+        """takes the container name and do main instruction to get transcription of the words."""
+        container: list = self.get_word_from_container_with_own_translation(
+            container_name
+        )
+        driver = self.website_helper.launch_browser()
+        words = list(container.keys())
+        transcription_list: list = self.topPhonetics.get_transcription(words, driver)
+        container: dict = self.add_transcriptions_to_words(
+            container, transcription_list
+        )
+        return container
+
+    def add_transcriptions_to_words(self, container: dict, transcriptions: list):
+        """adds transcription to words contianer."""
+        count = 0
+        for word in list(container.keys()):
+            try:
+                print(word, transcriptions[count])
+                container[word]["transcription"] = transcriptions[count]
+                count += 1
+            except Exception as error:
+                print(error)
+        else:
+            print("Добавление транскрипций заверешено.")
+            return container
+
+    def get_word_from_container_with_own_translation(self, container_name: str) -> list:
+        """returns the exact container with words."""
+        data: dict = self.container_manager.get_containers_with_own_translation()
+        print(data)
+        container = data[0][container_name][0]
+        return container
 
 
 class Website_Translate_Helper:
@@ -271,12 +322,53 @@ class CambridgeDictionary(Website_Translate_Helper):
 
 class TopPhonetics(Website_Translate_Helper):
     def __init__(self):
+        super().__init__()
         self.url = "https://tophonetics.com/ru/"
 
-    def get_transcription(word: str):
-        pass
+    def put_words_into_bar(self, bar_element: WebElement, words: list):
+        words = " ".join(words)
+        print(words)
+        bar_element.send_keys(words)
+        print("succesfully sent!")
+
+    def find_transcriptions(self) -> list[WebElement]:
+        output: WebElement = self.browser.find_element(By.ID, "transcr_output")
+        transcriptions = output.find_elements(By.CLASS_NAME, "fr_norm")
+        return transcriptions
+
+    def put_transcription_in_container(self, transcriptions: list[WebElement]):
+        temp = []
+        for transcription in transcriptions:
+            temp.append(f"/{transcription.text}/")
+        return temp
+
+    def press_transcript_words(self):
+        button = self.browser.find_element(
+            By.CSS_SELECTOR, ".btn.btn-primary.btn-block"
+        )
+        print("button found")
+        button.click()
+
+    def get_transcription(self, words: list, driver: webdriver):
+        self.browser = driver
+        self.connect(self.url)
+        try:
+            bar_element: WebElement = WebDriverWait(self.browser, 20).until(
+                EC.presence_of_element_located((By.ID, "text_to_transcribe"))
+            )
+            self.put_words_into_bar(bar_element=bar_element, words=words)
+            self.press_transcript_words()
+            transcriptions: list[WebElement] = self.find_transcriptions()
+            transcription_list: list = self.put_transcription_in_container(
+                transcriptions
+            )
+        except Exception as error:
+            print(error)
+        else:
+            print("all found")
+            self.shutdown_browser()
+            return transcription_list
 
 
 if __name__ == "__main__":
-    wordTranslation = WordsTranslation()
-    wordTranslation.wordTranslationInstruction("test")
+    transcription = WordTranscription()

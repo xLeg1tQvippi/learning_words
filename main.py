@@ -53,6 +53,7 @@ class Main:
         """after user made a decision of choice we're redirecting user to its function/file."""
         launch_appending_words = "append_new_words"
         if file_name == launch_appending_words:
+            self.clear_console_history()
             addd_new_words = append_new_words.Menu()
 
     def launch_learn_words(self):
@@ -81,8 +82,11 @@ class Main:
         """creating directory for the DataBases and temp files for words."""
         os.makedirs(os.path.dirname(dir), exist_ok=True)
 
+    def create_original_files_to_translate_dir(self, dir: str):
+        os.makedirs(os.path.dirname(dir), exist_ok=True)
+
     def try_open_database(self, db_name) -> bool:
-        creatingDir = self.create_dictionary_files_dir(db_name)
+        self.create_dictionary_files_dir(db_name)
         try:
             if not os.path.exists(db_name):
                 raise ValueError("database is not exists.")
@@ -121,9 +125,12 @@ class Main:
             words_database = "words_database"
             db_name = "words_database.db"
             db_path_name = "dictionary_files/"
+            original_files_name = "original_files_to_translate/"
             full_db_path = f"{db_path_name+db_name}"
+            full_original_files_path = f"{db_path_name + original_files_name}"
 
             testDB = self.try_open_database(full_db_path)
+            self.create_original_files_to_translate_dir(full_original_files_path)
             print("testDB:", testDB)
             if not testDB:
                 updateDB = self.update_json_data(
@@ -165,7 +172,6 @@ class Main:
     """ cleaning console after preparing status """
 
     def clear_console_history(self):
-        print("cleaning console history...")
         time.sleep(1)
         if os.name == "nt":
             os.system("cls")

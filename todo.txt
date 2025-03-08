@@ -23,7 +23,7 @@ export excel table to word and save it, if person would like to print the list.
 words database:
 word: string, transcription: string, translation: string, status: false/learn/true
 
-append_new_word file.
+append_new_word file: WIP
 ---------------------
 tasks:
 
@@ -48,7 +48,7 @@ otherwise, if containers are already exists, asking user to choose by inputing t
 // if container were once DataBased we're requesting all the words from DB that included inside of chosen container and showing existed words.
 
 
-checking containers. // append_new_words.
+checking containers. // append_new_words: DONE
 -----------------------------------------
 
 first of all, check if container.json - is empty. (fully)
@@ -59,12 +59,77 @@ to another menu where we're asking to:
 2. remove words.
 0. back to menu.
 
-word_translation instruction.
+word_translation instruction: DONE
 ----------------------------
+
+0. check if containers_temp is empty.
 
 1. receive the words container from menu.
 2. launch browser.
-3. open 3 websites // 2 translation of word // 1 transcription.
+3. open 3 websites // 2 translation of word // 1 transcription(TopPhonetics will be used later.)
 4. switch between websites and paste the word, get the translations and transcription
 5. save data in containers temp.
 6. repeat untill all words are not empty.
+7. compare words from different webistes.
+8. return translated words back.
+
+-> continue:
+
+manage containers // append_new_words -> storing all translated words in DataBase: DONE
+-------------------------------------
+
+1. store translated words in containers.json
+2. after the words saved, showing all words to user.
+3. allowing to manage the words (remove/add)
+4. save in database.
+
+append_new_words additional: WIP
+----------------------------
+
+idea:
+allow user to add own translation of word. i.e. -> word - translation.
+
+1. choose a container. (create new one if not exists)
+2. choose:
+    1. add words to translate.
+    2. translate on your own.
+
+detailed about translate on your own:
+1. user inputs the words & translation of the word.
+2. add all words/translation to temp container. (!) changes: all written data adds to a new container section.
+3. go to TopPhonetics website.
+4. inputs all the words -> get transcription of the words.
+5. save data in DB. word/transcription/translation.
+
+append_new_words additional: DONE
+----------------------------
+
+idea:
+allow user to manage the translated words -> correct them or delete at all.
+1. user chooses to show last translated words.
+2. shows all translated words.
+3. asking for if user wants to manage container.
+    1. if yes:
+        1. in for cycle taking all the word and it's translations.
+        2. put in input all translation of the word.
+        -> allow user to delete and manage translation.
+        3. enter -> saving the translation to word.
+    2. if no skip and return to menu.
+
+
+adding words to quizlet // main instructions. // do not accepted. (Selenium didnt came thru CloudFlare P.S. others webdrivers too.)
+---------------------------------------------
+
+1. We're taking the list of words that is in temp container. // DataBase
+2. checking if user have it's own webpage of quizlet.
+    1. if not -> asking to add a url.
+    2. else launch website.
+3. opening quizlet webpage -> #https://quizlet.com/user/{nickname}/sets
+4. check if module was already created once.
+    1. putting the name of container in searching bar.
+    2. if modules:
+        1. open module and add words.
+        2. else:
+            1. create new module
+                1. add new words and save.
+    <--------- return True if saved else False
